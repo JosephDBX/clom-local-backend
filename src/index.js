@@ -1,47 +1,49 @@
-const express = require('express');
-const { ApolloServer } = require('apollo-server-express');
-const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
+import express from "express";
+import mongoose from "mongoose";
+import bodyParser from "body-parser";
+import { ApolloServer } from "apollo-server-express";
 
-// start express app
-const app = express();
+import { typeDefs } from "./graphql/schema/index";
+import { resolvers } from "./graphql/resolvers/index";
+import { context } from "./middlewares/index";
 
-// start apollo server
-const { typeDefs } = require('./graphql/schema/index');
-const { resolvers } = require('./graphql/resolvers/index');
+const startServer = async () => {
+    // start express app
+    const app = express();
 
-const server = new ApolloServer({
-    typeDefs,
-    resolvers
-});
+    // start apollo server
+    const server = new ApolloServer({
+        typeDefs,
+        resolvers,
+        context
+    });
 
-// middleware imports
+    // applying middlewares to express app
+    app.use(bodyParser.json());
 
-// applying middlewares to express app
-app.use(bodyParser.json());
+    app.use((req, res, next) => {
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        res.setHeader("Access-Control-Allow-Methods", "POST,GET,OPTIONS");
+        res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
+        if (req.method === "OPTIONS") return res.sendStatus(200);
+        next();
+    });
 
-app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'POST,GET,OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
-    if (req.method === 'OPTIONS') return res.sendStatus(200);
-    next();
-});
+    server.applyMiddleware({ app });
 
-server.applyMiddleware({ app });
+    // mongodb
+    const DB_URI = `mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}?retryWrites=true`
 
-const DB_URI = process.env.DEBUG
-    ? `mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}?retryWrites=true`
-    : `mongodb://${process.env.DB_USER_NAME}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}?retryWrites=true`;
+    await mongoose.connect(DB_URI, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+    }, (error) => {
+        console.error(error);
+    });
 
-mongoose.connect(DB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-}).then(() => {
-    console.log("Mongodb connected!");
-    return app.listen(process.env.APP_PORT);
-}).then(() => {
-    console.log(`🚀 Server ready at http://localhost:${process.env.APP_PORT}${server.graphqlPath}`)
-}).catch((error) => {
-    console.error(error);
-});
+    return app.listen(process.env.APP_PORT, () => {
+        console.log(`🚀 Server ready at http://localhost:${process.env.APP_PORT}${server.graphqlPath}`)
+    });
+}
+
+startServer();
