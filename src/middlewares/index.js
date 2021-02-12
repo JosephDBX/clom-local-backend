@@ -1,7 +1,7 @@
-import { authentication } from "./auth";
+import { authentication } from './auth';
 
 export const context = ({ req }) => {
-    const roles = null;
+    const roles = authentication(req.headers.authorization);
 
     return { roles }
 }

@@ -1,10 +1,10 @@
 import { Schema, model } from 'mongoose';
 import mongoosePaginate from 'mongoose-paginate';
 
-const AreaSchema = new Schema({
+const UserSchema = new Schema({
     name: { type: String, required: true }
 });
 
-AreaSchema.plugin(mongoosePaginate);
+UserSchema.plugin(mongoosePaginate);
 
-export default model('Area', AreaSchema);
+export default model('User', UserSchema);

@@ -1,19 +1,21 @@
-const { gql } = require('apollo-server-express');
+import { gql } from 'apollo-server-express';
 
 exports.typeDefs = gql`
-type Area {
-    _id: ID!
-    name: String!
+scalar DateTime
+
+input PaginateInput {
+    page: Int!
+    limit: Int!
 }
 
-type AreaPage {
-    areas: [Area!]
-    pageInfo: PageInfo
+type Paginate {
+    total: Int!
+    limit: Int!
+    page: Int!
+    pages: Int!
 }
 
 type Query {
     hello: String!
-    area(_id: ID!): Area
-    areas(AreaInput: areaInput) AreaPage
 }
 `;

@@ -3,9 +3,9 @@ import mongoose from "mongoose";
 import bodyParser from "body-parser";
 import { ApolloServer } from "apollo-server-express";
 
-import { typeDefs } from "./graphql/schema/index";
-import { resolvers } from "./graphql/resolvers/index";
-import { context } from "./middlewares/index";
+import { typeDefs } from "./graphql/schema";
+import { resolvers } from "./graphql/resolvers";
+import { context } from "./middlewares";
 
 const startServer = async () => {
     // start express app
