@@ -1,2 +1,3 @@
 # clom-local-backend
-## Clinical Laboratory Order Management - Local Backend
+- Node.js - Express
+- Apollo Server - Graphql
